@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alp Gestion — Gestion de Patrimoine Indépendante</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --color-primary: #0d2040;
+      --color-secondary: #c9a96e;
+      --color-bg: #f2ede5;
+      --color-text: #1a1a2e;
+      --color-white: #ffffff;
+      --color-mid: #6b7a8d;
+      --color-border: rgba(13,32,64,0.1);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; background: var(--color-bg); color: var(--color-text); overflow-x: hidden; }
+    a { text-decoration: none; color: inherit; }
+
+    /* ANIMATIONS */
+    .fade-in { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+    .fade-in.visible { opacity: 1; transform: translateY(0); }
+
+    /* === NAV === */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.2rem 3rem;
+      background: rgba(242,237,229,0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--color-border);
+    }
+    .nav-logo { display: flex; flex-direction: column; }
+    .nav-logo-name { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 600; color: var(--color-primary); letter-spacing: 0.08em; }
+    .nav-logo-sub { font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--color-mid); }
+    .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+    .nav-links a { font-size: 0.82rem; color: var(--color-text); font-weight: 400; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--color-primary); }
+    .nav-actions { display: flex; gap: 0.75rem; align-items: center; }
+    .btn-ghost { font-size: 0.8rem; color: var(--color-primary); font-weight: 500; padding: 0.55rem 1.2rem; border: 1.5px solid var(--color-primary); border-radius: 50px; transition: all 0.2s; display: inline-block; }
+    .btn-ghost:hover { background: var(--color-primary); color: var(--color-white); }
+    .btn-primary { font-size: 0.8rem; color: var(--color-white); font-weight: 500; padding: 0.55rem 1.4rem; background: var(--color-primary); border-radius: 50px; border: 1.5px solid var(--color-primary); transition: all 0.2s; display: inline-block; }
+    .btn-primary:hover { background: #1a3a6b; border-color: #1a3a6b; }
+    .nav-toggle { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 4px; }
+    .nav-toggle span { display: block; width: 22px; height: 2px; background: var(--color-primary); transition: all 0.2s; }
+
+    /* === HERO === */
+    #hero {
+      min-height: 100vh;
+      background: var(--color-bg);
+      display: flex; align-items: center;
+      padding: 8rem 3rem 5rem;
+      position: relative; overflow: hidden;
+    }
+    .hero-decor {
+      position: absolute; top: 0; right: 0;
+      width: 38%; height: 100%;
+      background: linear-gradient(135deg, rgba(13,32,64,0.05) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-decor-line {
+      position: absolute; top: 0; bottom: 0;
+      right: 38%; width: 1px;
+      background: linear-gradient(to bottom, transparent, rgba(13,32,64,0.08) 30%, rgba(13,32,64,0.08) 70%, transparent);
+    }
+    .hero-inner { max-width: 1200px; margin: 0 auto; width: 100%; display: grid; grid-template-columns: 1.2fr 1fr; gap: 5rem; align-items: center; }
+    .hero-tag { display: inline-flex; align-items: center; gap: 0.6rem; font-size: 0.68rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--color-primary); font-weight: 600; margin-bottom: 1.5rem; }
+    .hero-tag::before { content: ''; display: inline-block; width: 20px; height: 1.5px; background: var(--color-secondary); }
+    .hero-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(2.4rem, 4.5vw, 3.8rem); font-weight: 400; line-height: 1.18; color: var(--color-primary); margin-bottom: 2rem; }
+    .hero-title em { font-style: italic; font-weight: 300; }
+    .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .hero-right { display: flex; flex-direction: column; gap: 1rem; }
+    .hero-point { display: flex; align-items: center; gap: 1rem; padding: 1.1rem 1.4rem; background: rgba(255,255,255,0.65); border: 1px solid var(--color-border); border-radius: 8px; backdrop-filter: blur(4px); }
+    .hero-point-icon { width: 38px; height: 38px; background: var(--color-primary); border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--color-secondary); font-size: 1rem; }
+    .hero-point-text { font-size: 0.88rem; color: var(--color-text); line-height: 1.4; }
+    .hero-badge { margin-top: 0.75rem; display: flex; align-items: center; gap: 0.6rem; font-size: 0.7rem; color: var(--color-mid); }
+    .hero-badge::before { content: '✓'; width: 18px; height: 18px; background: rgba(13,32,64,0.08); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.62rem; color: var(--color-primary); font-weight: 700; flex-shrink: 0; }
+
+    /* === SHARED SECTION STYLES === */
+    .section-label { font-size: 0.68rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--color-secondary); font-weight: 600; display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.8rem; }
+    .section-label::before { content: ''; width: 20px; height: 1.5px; background: var(--color-secondary); }
+    .section-label-light { font-size: 0.68rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--color-secondary); font-weight: 600; display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.8rem; }
+    .section-label-light::before { content: ''; width: 20px; height: 1.5px; background: var(--color-secondary); }
+    .section-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(1.9rem, 3.5vw, 2.8rem); font-weight: 400; color: var(--color-primary); line-height: 1.2; margin-bottom: 1rem; }
+    .section-title em { font-style: italic; font-weight: 300; }
+    .section-title-light { font-family: 'Cormorant Garamond', serif; font-size: clamp(1.9rem, 3.5vw, 2.8rem); font-weight: 400; color: var(--color-white); line-height: 1.2; margin-bottom: 1rem; }
+    .section-title-light em { font-style: italic; font-weight: 300; }
+    .section-body { font-size: 0.92rem; line-height: 1.85; color: var(--color-mid); font-weight: 300; max-width: 560px; }
+
+    /* === SERVICES === */
+    #services { background: var(--color-primary); padding: 7rem 3rem; }
+    .services-inner { max-width: 1200px; margin: 0 auto; }
+    .services-header { margin-bottom: 3.5rem; }
+    .services-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5px; background: rgba(255,255,255,0.08); }
+    .service-card { background: var(--color-primary); padding: 2.8rem; transition: background 0.25s; cursor: default; }
+    .service-card:hover { background: rgba(255,255,255,0.04); }
+    .service-num { font-family: 'Cormorant Garamond', serif; font-size: 2.8rem; font-weight: 300; color: rgba(255,255,255,0.1); line-height: 1; margin-bottom: 1.2rem; }
+    .service-name { font-family: 'Cormorant Garamond', serif; font-size: 1.35rem; color: var(--color-white); font-weight: 400; margin-bottom: 0.8rem; }
+    .service-desc { font-size: 0.84rem; line-height: 1.78; color: rgba(255,255,255,0.5); font-weight: 300; }
+    .service-arrow { margin-top: 1.8rem; color: var(--color-secondary); font-size: 1.1rem; }
+
+    /* === MÉTHODE === */
+    #methode { background: var(--color-bg); padding: 7rem 3rem; }
+    .methode-inner { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1.4fr; gap: 5rem; align-items: start; }
+    .methode-image { position: sticky; top: 6rem; }
+    /* IMAGE: methode-conseiller */
+    .methode-img-placeholder { height: 520px; border-radius: 2px; background: url('https://images.unsplash.com/photo-1526948531399-320e7e40f0ca?w=900&auto=format&fit=crop&q=85') center/cover no-repeat; }
+    .steps { display: flex; flex-direction: column; gap: 0; }
+    .step { display: flex; gap: 1.5rem; align-items: flex-start; padding: 2.2rem 0; border-bottom: 1px solid var(--color-border); }
+    .step:first-child { padding-top: 0; }
+    .step:last-child { border-bottom: none; }
+    .step-num { font-family: 'Cormorant Garamond', serif; font-size: 2.5rem; font-weight: 300; color: rgba(13,32,64,0.12); line-height: 1; flex-shrink: 0; width: 48px; }
+    .step-title { font-family: 'Cormorant Garamond', serif; font-size: 1.25rem; color: var(--color-primary); font-weight: 400; margin-bottom: 0.5rem; }
+    .step-desc { font-size: 0.87rem; line-height: 1.78; color: var(--color-mid); font-weight: 300; }
+
+    /* === VALEURS === */
+    #valeurs { background: var(--color-white); padding: 7rem 3rem; }
+    .valeurs-inner { max-width: 1200px; margin: 0 auto; }
+    .valeurs-header { text-align: center; margin-bottom: 4rem; }
+    .valeurs-header .section-label { justify-content: center; }
+    .valeurs-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; background: rgba(13,32,64,0.06); }
+    .valeur-card { background: var(--color-white); padding: 2.5rem 2rem; transition: background 0.2s; }
+    .valeur-card:hover { background: #faf8f5; }
+    .valeur-icon { font-size: 1.5rem; margin-bottom: 1.2rem; color: var(--color-secondary); }
+    .valeur-title { font-family: 'Cormorant Garamond', serif; font-size: 1.15rem; color: var(--color-primary); font-weight: 600; margin-bottom: 0.6rem; }
+    .valeur-desc { font-size: 0.82rem; line-height: 1.75; color: var(--color-mid); font-weight: 300; }
+
+    /* === PARTENAIRES === */
+    #partenaires { background: var(--color-bg); padding: 3.5rem 3rem; border-top: 1px solid var(--color-border); border-bottom: 1px solid var(--color-border); }
+    .partenaires-inner { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; gap: 4rem; flex-wrap: wrap; }
+    .partenaires-label { font-size: 0.65rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--color-mid); font-weight: 500; flex-shrink: 0; }
+    .partenaires-list { display: flex; gap: 3rem; align-items: center; flex-wrap: wrap; flex: 1; }
+    .partenaire-item { font-family: 'Cormorant Garamond', serif; font-size: 1.05rem; color: rgba(13,32,64,0.4); font-weight: 400; letter-spacing: 0.04em; border-bottom: 1px solid rgba(13,32,64,0.15); padding-bottom: 2px; transition: color 0.2s; }
+    .partenaire-item:hover { color: var(--color-primary); }
+
+    /* === TÉMOIGNAGES === */
+    #temoignages { background: var(--color-bg); padding: 7rem 3rem; }
+    .temoignages-inner { max-width: 1200px; margin: 0 auto; }
+    .temoignages-header { margin-bottom: 3.5rem; }
+    .temoignages-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+    .temoignage-card { display: flex; flex-direction: column; overflow: hidden; }
+    /* IMAGE: portrait-client */
+    .temoignage-photo { height: 260px; background: linear-gradient(145deg, #8aadcc, #4a7a9b); flex-shrink: 0; background-size: cover; background-position: center top; }
+    .temoignage-body { background: var(--color-primary); padding: 1.8rem; flex: 1; }
+    .temoignage-quote { font-family: 'Cormorant Garamond', serif; font-size: 1rem; line-height: 1.75; color: rgba(255,255,255,0.82); font-weight: 300; font-style: italic; margin-bottom: 1.2rem; }
+    .temoignage-author strong { display: block; color: var(--color-white); font-size: 0.82rem; font-weight: 500; margin-bottom: 0.15rem; }
+    .temoignage-author span { font-size: 0.72rem; color: rgba(255,255,255,0.45); letter-spacing: 0.04em; }
+
+    /* === CONTACT === */
+    #contact { background: var(--color-primary); padding: 7rem 3rem; }
+    .contact-inner { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: start; }
+    .contact-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(2rem, 3.5vw, 3rem); font-weight: 400; color: var(--color-white); line-height: 1.2; margin-bottom: 1.2rem; }
+    .contact-title em { font-style: italic; font-weight: 300; }
+    .contact-body { font-size: 0.88rem; line-height: 1.8; color: rgba(255,255,255,0.5); font-weight: 300; margin-bottom: 2.5rem; }
+    .contact-item { display: flex; gap: 1rem; margin-bottom: 1.2rem; align-items: flex-start; }
+    .contact-icon { width: 38px; height: 38px; border: 1px solid rgba(255,255,255,0.12); display: flex; align-items: center; justify-content: center; border-radius: 6px; flex-shrink: 0; font-size: 0.9rem; color: var(--color-secondary); }
+    .contact-item-label { font-size: 0.62rem; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-bottom: 0.15rem; font-weight: 500; }
+    .contact-item-value { font-size: 0.9rem; color: rgba(255,255,255,0.75); font-weight: 300; }
+    .contact-item-value a { color: inherit; transition: color 0.2s; }
+    .contact-item-value a:hover { color: var(--color-secondary); }
+    .contact-form { display: flex; flex-direction: column; gap: 1rem; }
+    .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
+    .form-label { font-size: 0.65rem; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.35); font-weight: 500; }
+    .form-input { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); padding: 0.85rem 1rem; color: var(--color-white); font-size: 0.87rem; font-family: 'Inter', sans-serif; transition: border-color 0.2s; border-radius: 4px; outline: none; }
+    .form-input::placeholder { color: rgba(255,255,255,0.22); }
+    .form-input:focus { border-color: rgba(255,255,255,0.3); }
+    textarea.form-input { min-height: 120px; resize: vertical; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .btn-submit { background: var(--color-secondary); color: var(--color-primary); border: none; padding: 0.95rem 2.5rem; font-size: 0.78rem; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; border-radius: 50px; transition: background 0.2s; margin-top: 0.5rem; align-self: flex-start; }
+    .btn-submit:hover { background: #d4b87a; }
+
+    /* === FOOTER === */
+    footer { background: #060d18; padding: 2rem 3rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; border-top: 1px solid rgba(255,255,255,0.04); }
+    .footer-logo { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; color: rgba(255,255,255,0.5); letter-spacing: 0.06em; }
+    .footer-links { display: flex; gap: 2rem; list-style: none; }
+    .footer-links a { font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.25); transition: color 0.2s; }
+    .footer-links a:hover { color: rgba(255,255,255,0.55); }
+    .footer-copy { font-size: 0.7rem; color: rgba(255,255,255,0.18); }
+
+    /* === RESPONSIVE === */
+    @media (max-width: 1024px) {
+      .valeurs-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 768px) {
+      nav { padding: 1rem 1.5rem; }
+      .nav-links { display: none; flex-direction: column; position: absolute; top: 100%; left: 0; right: 0; background: var(--color-bg); padding: 1.5rem 2rem; gap: 1.2rem; border-bottom: 1px solid var(--color-border); box-shadow: 0 8px 24px rgba(0,0,0,0.06); }
+      .nav-links.open { display: flex; }
+      .nav-actions .btn-ghost { display: none; }
+      .nav-toggle { display: flex; }
+      #hero { padding: 7rem 1.5rem 4rem; }
+      .hero-inner { grid-template-columns: 1fr; gap: 2.5rem; }
+      .methode-inner { grid-template-columns: 1fr; }
+      .methode-image { position: static; }
+      .services-grid { grid-template-columns: 1fr; }
+      .temoignages-grid { grid-template-columns: 1fr; }
+      .contact-inner { grid-template-columns: 1fr; gap: 3rem; }
+      #services, #methode, #valeurs, #temoignages, #contact { padding: 5rem 1.5rem; }
+      #partenaires { padding: 3rem 1.5rem; }
+      footer { flex-direction: column; text-align: center; padding: 2rem 1.5rem; }
+      .footer-links { justify-content: center; }
+      .form-row { grid-template-columns: 1fr; }
+      .partenaires-inner { flex-direction: column; align-items: flex-start; gap: 1.5rem; }
+    }
+    @media (max-width: 480px) {
+      .valeurs-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- === NAV === -->
+  <nav id="navbar">
+    <a href="#hero" class="nav-logo">
+      <span class="nav-logo-name">Alp Gestion</span>
+      <span class="nav-logo-sub">Wealth Management · Valais</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#services">Nos Services</a></li>
+      <li><a href="#methode">Notre Méthode</a></li>
+      <li><a href="#valeurs">Nos Valeurs</a></li>
+      <li><a href="#temoignages">Références</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a href="mailto:info@alp-gestion.ch" class="btn-ghost">Nous écrire</a>
+      <a href="#contact" class="btn-primary">Prendre rendez-vous</a>
+    </div>
+    <button class="nav-toggle" id="navToggle" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- === HERO === -->
+  <section id="hero">
+    <div class="hero-decor"></div>
+    <div class="hero-decor-line"></div>
+    <div class="hero-inner">
+      <div class="fade-in">
+        <p class="hero-tag">Depuis 2001 · Agréé FINMA · Valais</p>
+        <h1 class="hero-title">
+          Bénéficiez d'un conseiller en gestion de patrimoine <em>réellement indépendant.</em>
+        </h1>
+        <div class="hero-actions">
+          <a href="#contact" class="btn-primary" style="padding: 0.8rem 2.2rem; font-size: 0.85rem;">Prendre rendez-vous</a>
+          <a href="#services" class="btn-ghost" style="padding: 0.8rem 2.2rem; font-size: 0.85rem;">Nos services</a>
+        </div>
+      </div>
+      <div class="hero-right fade-in" style="transition-delay: 0.15s;">
+        <div class="hero-point">
+          <div class="hero-point-icon">◈</div>
+          <span class="hero-point-text">Optimisez la performance de votre patrimoine à long terme</span>
+        </div>
+        <div class="hero-point">
+          <div class="hero-point-icon">↗</div>
+          <span class="hero-point-text">Augmentez vos revenus grâce à des conseils objectifs et sans conflit d'intérêt</span>
+        </div>
+        <div class="hero-point">
+          <div class="hero-point-icon">⊖</div>
+          <span class="hero-point-text">Réduisez votre charge fiscale dans le cadre légal suisse</span>
+        </div>
+        <p class="hero-badge">Agréé FINMA · Membre ASG · Indépendant de toute banque</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- === SERVICES === -->
+  <section id="services">
+    <div class="services-inner">
+      <div class="services-header fade-in">
+        <p class="section-label-light">Ce que nous faisons</p>
+        <h2 class="section-title-light">Nos <em>services</em></h2>
+      </div>
+      <div class="services-grid">
+        <div class="service-card fade-in">
+          <div class="service-num">01</div>
+          <h3 class="service-name">Gestion Discrétionnaire</h3>
+          <p class="service-desc">Nous gérons votre portefeuille selon un mandat défini ensemble, en alignement total avec votre profil de risque et vos objectifs de rendement. Reporting régulier et transparence absolue sur chaque décision.</p>
+          <div class="service-arrow">→</div>
+        </div>
+        <div class="service-card fade-in" style="transition-delay: 0.1s;">
+          <div class="service-num">02</div>
+          <h3 class="service-name">Conseil en Investissement</h3>
+          <p class="service-desc">Nos recommandations sont 100% indépendantes de tout établissement bancaire. Vous bénéficiez d'un conseil objectif, sans conflit d'intérêt, sur l'ensemble des classes d'actifs disponibles sur les marchés.</p>
+          <div class="service-arrow">→</div>
+        </div>
+        <div class="service-card fade-in" style="transition-delay: 0.15s;">
+          <div class="service-num">03</div>
+          <h3 class="service-name">Planification Patrimoniale</h3>
+          <p class="service-desc">Structuration globale de votre patrimoine sur le long terme : transmission, succession, protection du conjoint, prévoyance. Une vision d'ensemble pour pérenniser ce que vous avez bâti.</p>
+          <div class="service-arrow">→</div>
+        </div>
+        <div class="service-card fade-in" style="transition-delay: 0.2s;">
+          <div class="service-num">04</div>
+          <h3 class="service-name">Optimisation Fiscale</h3>
+          <p class="service-desc">Analyse de votre situation fiscale et mise en place de stratégies d'optimisation légales adaptées au contexte helvétique. Coordination avec vos conseillers fiscaux existants si nécessaire.</p>
+          <div class="service-arrow">→</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- === MÉTHODE === -->
+  <section id="methode">
+    <div class="methode-inner">
+      <div class="methode-image fade-in">
+        <!-- IMAGE: methode-conseiller -->
+        <div class="methode-img-placeholder"></div>
+      </div>
+      <div class="fade-in" style="transition-delay: 0.1s;">
+        <p class="section-label">Notre approche</p>
+        <h2 class="section-title">Une méthode <em>éprouvée</em> depuis 2001</h2>
+        <p class="section-body" style="margin-bottom: 3rem;">Plus de 60 ans d'expérience bancaire collective au service d'une clientèle exigeante. Notre méthode repose sur l'écoute, la rigueur et une totale disponibilité.</p>
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">01</div>
+            <div>
+              <h3 class="step-title">Bilan Patrimonial Complet</h3>
+              <p class="step-desc">Nous commençons par une analyse approfondie de votre situation globale : actifs, passifs, revenus, projets de vie et horizon de placement. Cette première rencontre est gratuite et sans engagement.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">02</div>
+            <div>
+              <h3 class="step-title">Stratégie Sur Mesure</h3>
+              <p class="step-desc">Sur la base de ce bilan, nous définissons ensemble une allocation d'actifs personnalisée, adaptée à votre profil de risque et à vos objectifs à court, moyen et long terme.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">03</div>
+            <div>
+              <h3 class="step-title">Suivi et Reporting Continu</h3>
+              <p class="step-desc">Un reporting clair et régulier, des points de situation périodiques, et une adaptation permanente de la stratégie aux évolutions des marchés et de votre vie personnelle.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- === VALEURS === -->
+  <section id="valeurs">
+    <div class="valeurs-inner">
+      <div class="valeurs-header fade-in">
+        <p class="section-label">Ce qui nous définit</p>
+        <h2 class="section-title">Nos <em>valeurs fondamentales</em></h2>
+      </div>
+      <div class="valeurs-grid">
+        <div class="valeur-card fade-in">
+          <div class="valeur-icon">⊙</div>
+          <h3 class="valeur-title">Indépendance totale</h3>
+          <p class="valeur-desc">Les associés détiennent l'intégralité du capital. Alp Gestion n'est affilié à aucune banque ni groupe financier. Votre intérêt passe toujours en premier.</p>
+        </div>
+        <div class="valeur-card fade-in" style="transition-delay: 0.08s;">
+          <div class="valeur-icon">◎</div>
+          <h3 class="valeur-title">Conseil individualisé</h3>
+          <p class="valeur-desc">Disponibilité totale et accompagnement adapté à votre situation spécifique. Pas de solution standard appliquée mécaniquement — chaque client est unique.</p>
+        </div>
+        <div class="valeur-card fade-in" style="transition-delay: 0.16s;">
+          <div class="valeur-icon">◈</div>
+          <h3 class="valeur-title">Expertise reconnue</h3>
+          <p class="valeur-desc">60+ ans d'expérience bancaire cumulée. Agréé FINMA depuis 2001 et membre de l'Association Suisse des Gérants de Fortune (ASG-VSV).</p>
+        </div>
+        <div class="valeur-card fade-in" style="transition-delay: 0.24s;">
+          <div class="valeur-icon">⊕</div>
+          <h3 class="valeur-title">Discrétion & Sécurité</h3>
+          <p class="valeur-desc">La confidentialité et la sécurité constituent les piliers de notre éthique professionnelle. Vos données et votre patrimoine sont protégés à chaque niveau.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- === PARTENAIRES === -->
+  <section id="partenaires">
+    <div class="partenaires-inner">
+      <p class="partenaires-label">Nos partenaires</p>
+      <div class="partenaires-list">
+        <span class="partenaire-item">UBS SA</span>
+        <span class="partenaire-item">Banque Cantonale du Valais</span>
+        <span class="partenaire-item">ASG — Swiss Wealth Managers</span>
+        <span class="partenaire-item">FINMA</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- === TÉMOIGNAGES === -->
+  <section id="temoignages">
+    <div class="temoignages-inner">
+      <div class="temoignages-header fade-in">
+        <p class="section-label">Ils nous font confiance</p>
+        <h2 class="section-title">Ce que disent <em>nos clients</em></h2>
+      </div>
+      <div class="temoignages-grid">
+        <div class="temoignage-card fade-in">
+          <!-- IMAGE: portrait-1 -->
+          <div class="temoignage-photo" id="portrait1" style="background: url('https://images.unsplash.com/photo-1560250097-0b93528c311a?w=600&auto=format&fit=crop&q=85') center top/cover no-repeat;"></div>
+          <div class="temoignage-body">
+            <p class="temoignage-quote">"En tant que chef d'entreprise, je cherchais un gestionnaire réellement indépendant, sans agenda caché. Alp Gestion m'a apporté des réponses concrètes et une vraie valeur ajoutée grâce à son indépendance et son expertise des marchés."</p>
+            <div class="temoignage-author">
+              <strong>Laurent</strong>
+              <span>Chef d'entreprise, Sion</span>
+            </div>
+          </div>
+        </div>
+        <div class="temoignage-card fade-in" style="transition-delay: 0.1s;">
+          <!-- IMAGE: portrait-2 -->
+          <div class="temoignage-photo" id="portrait2" style="background: url('https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=600&auto=format&fit=crop&q=85') center top/cover no-repeat;"></div>
+          <div class="temoignage-body">
+            <p class="temoignage-quote">"La planification de ma retraite était une source d'inquiétude. L'équipe d'Alp Gestion a structuré l'ensemble de mon patrimoine avec une clarté et une pédagogie remarquables. Je dors beaucoup mieux."</p>
+            <div class="temoignage-author">
+              <strong>Christine</strong>
+              <span>Cadre supérieure, Martigny</span>
+            </div>
+          </div>
+        </div>
+        <div class="temoignage-card fade-in" style="transition-delay: 0.2s;">
+          <!-- IMAGE: portrait-3 -->
+          <div class="temoignage-photo" id="portrait3" style="background: url('https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=600&auto=format&fit=crop&q=85') center top/cover no-repeat;"></div>
+          <div class="temoignage-body">
+            <p class="temoignage-quote">"Un suivi personnalisé, réactif, et des conseils avisés en toutes circonstances. Je recommande sans hésitation à quiconque souhaite sécuriser et faire fructifier son patrimoine durablement en Suisse."</p>
+            <div class="temoignage-author">
+              <strong>Philippe</strong>
+              <span>Professionnel libéral, Sierre</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- === CONTACT === -->
+  <section id="contact">
+    <div class="contact-inner">
+      <div class="fade-in">
+        <p class="section-label-light">Prenons contact</p>
+        <h2 class="contact-title">Commençons par un <em>entretien gratuit</em></h2>
+        <p class="contact-body">Un premier bilan patrimonial, sans engagement, pour comprendre votre situation et vous présenter comment nous pouvons vous accompagner vers vos objectifs.</p>
+        <div class="contact-item">
+          <div class="contact-icon">✉</div>
+          <div>
+            <p class="contact-item-label">Email</p>
+            <p class="contact-item-value"><a href="mailto:info@alp-gestion.ch">info@alp-gestion.ch</a></p>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">◎</div>
+          <div>
+            <p class="contact-item-label">Régulation</p>
+            <p class="contact-item-value">Agréé FINMA · Membre ASG · Depuis 2001</p>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">◉</div>
+          <div>
+            <p class="contact-item-label">Partenaires bancaires</p>
+            <p class="contact-item-value">UBS SA · Banque Cantonale du Valais</p>
+          </div>
+        </div>
+      </div>
+      <div class="fade-in" style="transition-delay: 0.15s;">
+        <form class="contact-form" onsubmit="return false;">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Prénom</label>
+              <input type="text" class="form-input" placeholder="Jean">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Nom</label>
+              <input type="text" class="form-input" placeholder="Dupont">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-input" placeholder="jean.dupont@email.com">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Téléphone</label>
+            <input type="tel" class="form-input" placeholder="+41 79 000 00 00">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Votre message</label>
+            <textarea class="form-input" placeholder="Décrivez brièvement votre situation ou vos objectifs patrimoniaux..."></textarea>
+          </div>
+          <button type="submit" class="btn-submit">Envoyer ma demande</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- === FOOTER === -->
+  <footer>
+    <div class="footer-logo">Alp Gestion — Wealth Management</div>
+    <ul class="footer-links">
+      <li><a href="#services">Services</a></li>
+      <li><a href="#methode">Méthode</a></li>
+      <li><a href="#valeurs">Valeurs</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <p class="footer-copy">© 2024 Alp Gestion SA · Agréé FINMA · info@alp-gestion.ch</p>
+  </footer>
+
+  <script>
+    // Mobile nav
+    const navToggle = document.getElementById('navToggle');
+    const navLinks  = document.getElementById('navLinks');
+    navToggle.addEventListener('click', () => navLinks.classList.toggle('open'));
+    document.querySelectorAll('#navLinks a').forEach(l => l.addEventListener('click', () => navLinks.classList.remove('open')));
+
+    // Scroll animations
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+    }, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>
